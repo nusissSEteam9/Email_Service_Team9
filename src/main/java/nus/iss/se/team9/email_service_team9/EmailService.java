@@ -1,12 +1,12 @@
 package nus.iss.se.team9.email_service_team9;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
-import java.util.Random;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
@@ -14,7 +14,7 @@ public class EmailService {
     private final String username = "zhangten0131@gmail.com"; // 发送邮件的邮箱地址
     private final String password = "c o s f uvao ofrk etnj"; // 邮箱密码或授权码
 
-    public String sendEmail(EmailDetails emailDetails) {
+    public ResponseEntity<String> sendEmail(EmailDetails emailDetails) {
         try {
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
@@ -36,9 +36,10 @@ public class EmailService {
 
             Transport.send(message); // send
 
-            return "Email sent successfully";
+            return ResponseEntity.ok("Email sent successfully");
         } catch (Exception e) {
-            return "Error while sending email: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error while sending email: " + e.getMessage());
         }
     }
 }
