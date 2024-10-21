@@ -2,6 +2,7 @@ package nus.iss.se.team9.email_service_team9;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -13,6 +14,11 @@ public class EmailService {
 
     private final String username = "zhangten0131@gmail.com"; // 发送邮件的邮箱地址
     private final String password = "c o s f uvao ofrk etnj"; // 邮箱密码或授权码
+
+    @GetMapping("/health")
+    public String checkHealth(){
+        return "API is connected";
+    }
 
     public ResponseEntity<String> sendEmail(EmailDetails emailDetails) {
         try {
