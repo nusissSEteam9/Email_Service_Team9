@@ -48,7 +48,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Log in to Amazon ECR
+      # Step 1: Checkout code from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -57,7 +61,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Step 2: Cache Docker layers
+      # Step 3: Cache Docker layers
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
@@ -66,15 +70,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-
 
-      # Step 3: Set up Docker Buildx
+      # Step 4: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # Step 4: Build and push multi-architecture Docker image
+      # Step 5: List files to ensure Dockerfile exists in the correct path
+      - name: List files for debugging
+        run: ls -al ./Healthy_Recipe/Email_Service_Team9
+
+      # Step 6: Build and push Docker image to ECR
       - name: Build and push Docker image to ECR
         run: |
           docker buildx build \
             --platform linux/arm64 \
-            -f ./Dockerfile \
+            -f ./Dockerfile \  # 确保Dockerfile在当前上下文中
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest-EmailService \
             --push .
+        working-directory: ./Healthy_Recipe/Email_Service_Team9
