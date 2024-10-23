@@ -75,5 +75,6 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/arm64 \
+            -f ./Dockerfile \
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest-EmailService \
             --push .
