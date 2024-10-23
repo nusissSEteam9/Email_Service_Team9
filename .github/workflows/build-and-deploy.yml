@@ -76,7 +76,7 @@ jobs:
 
       # Step 5: List files to ensure Dockerfile exists in the correct path
       - name: List files for debugging
-        run: ls -al ./Healthy_Recipe/Email_Service_Team9
+        run: ls -al
 
       # Step 6: Build and push Docker image to ECR
       - name: Build and push Docker image to ECR
