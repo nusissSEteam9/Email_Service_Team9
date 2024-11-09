@@ -22,7 +22,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew clean build --no-daemon -Dorg.gradle.vfs.watch=false -x test
 
 # 第二阶段：运行时镜像，使用更小的基础镜像
-FROM openjdk:17-jre-slim
+FROM openjdk:17-slim
 
 # 设置工作目录
 WORKDIR /app
