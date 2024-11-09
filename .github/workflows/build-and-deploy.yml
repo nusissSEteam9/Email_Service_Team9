@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  # Build job for compiling and testing the application
+  # 构建并测试应用程序
   build:
     runs-on: ubuntu-latest
     steps:
@@ -36,13 +36,30 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew clean build --no-daemon --info
 
-  # Docker job for building and pushing Docker image
+      # 将构建输出的 JAR 文件保存为 Artifact
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: application-jar
+          path: build/libs/*.jar
+
+  # Docker 构建和推送
   docker-build:
-    needs: build  # 等待构建完成
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      # 创建目录并下载构建好的 JAR 文件 Artifact
+      - name: Create directory for artifact
+        run: mkdir -p application-jar
+
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: application-jar
+          path: application-jar
 
       - name: Log in to Amazon ECR
         id: login-ecr

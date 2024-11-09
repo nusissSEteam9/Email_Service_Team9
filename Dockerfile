@@ -21,14 +21,14 @@ RUN chmod +x ./gradlew
 # 使用 Gradle Wrapper 构建项目，并禁用文件系统监视功能
 RUN ./gradlew clean build --no-daemon -Dorg.gradle.vfs.watch=false -x test
 
-# 第二阶段：运行时镜像，使用更小的基础镜像
+# 使用更小的运行时基础镜像
 FROM openjdk:17-slim
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制构建阶段生成的 JAR 文件到运行镜像
-COPY --from=builder /app/build/libs/Email_Service_Team9-0.0.1-SNAPSHOT.jar /app/app.jar
+# 将构建好的 JAR 文件复制到运行时镜像
+COPY application-jar/*.jar /app/app.jar
 
 # 暴露 8080 端口
 EXPOSE 8080
