@@ -1,12 +1,12 @@
-# 使用较小的 Ubuntu 基础镜像
+# 构建阶段
 FROM ubuntu:latest AS builder
 
-# 更新并安装必要工具（findutils 和 OpenJDK 21）
-RUN apt-get update && apt-get install -y --no-install-recommends openjdk-21-jdk findutils && \
+# 更新并安装必要工具
+RUN apt-get update && apt-get install -y --no-install-recommends openjdk-17-jdk findutils && \
     rm -rf /var/lib/apt/lists/*  # 清理缓存减少镜像大小
 
-# 设置环境变量，简化路径配置
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+# 设置 JAVA_HOME 环境变量
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # 设置工作目录
@@ -22,7 +22,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew clean build --no-daemon -Dorg.gradle.vfs.watch=false -x test
 
 # 第二阶段：运行时镜像，使用更小的基础镜像
-FROM openjdk:21-slim
+FROM openjdk:17-jre-slim
 
 # 设置工作目录
 WORKDIR /app
