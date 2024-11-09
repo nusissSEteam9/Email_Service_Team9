@@ -6,16 +6,21 @@ on:
       - master
 
 jobs:
-  # Build job for compiling the application
+  # Build job for compiling and testing the application
   build:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code from GitHub
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Cache Gradle dependencies
-      - name: Cache Gradle packages
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle  # Gradle 缓存
+
+      - name: Cache Gradle dependencies
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
@@ -23,39 +28,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Step 3: Grant execute permission for gradlew
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      # Step 4: Set up JDK 17 for building the project
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # Step 5: Build the JAR file using Gradle
-      - name: Build with Gradle
+      - name: Build and Test with Gradle
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://iss-practice-module.cjq2w0cwqb5h.ap-southeast-1.rds.amazonaws.com:3306/HEALTHYRECIPY
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        run: ./gradlew clean build --no-daemon
+        run: ./gradlew clean build --no-daemon --info
 
-      - name: Run EmailControllerTest
-        run: ./gradlew test --tests "nus.iss.se.team9.email_service_team9.EmailControllerTest"
-
-  # Docker job for building and pushing Docker image 111
+  # Docker job for building and pushing Docker image
   docker-build:
-    needs: build
+    needs: build  # 等待构建完成
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code from GitHub   2213
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -64,7 +52,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Step 3: Cache Docker layers
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
@@ -73,15 +60,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-
 
-      # Step 4: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # Step 5: List files to ensure Dockerfile exists in the correct path
-      - name: List files for debugging
-        run: ls -al
-
-      # Step 6: Build and push Docker image to ECR
       - name: Build and push Docker image to ECR
         run: |
           docker buildx build \
