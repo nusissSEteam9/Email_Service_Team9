@@ -8,10 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,11 +33,18 @@ class EmailControllerTest {
     @InjectMocks
     private EmailController emailController;
 
+    private AutoCloseable mocks; // 用于在测试完成后关闭
+
     @BeforeEach
     void setUp() {
-        try (MockedStatic<MockitoAnnotations> mocked = Mockito.mockStatic(MockitoAnnotations.class)) {
-            mocked.when(() -> MockitoAnnotations.openMocks(this)).thenReturn(null);
-            mockMvc = MockMvcBuilders.standaloneSetup(emailController).build();
+        mocks = MockitoAnnotations.openMocks(this); // 初始化 mocks
+        mockMvc = MockMvcBuilders.standaloneSetup(emailController).build();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        if (mocks != null) {
+            mocks.close(); // 关闭 mocks 以释放资源
         }
     }
 

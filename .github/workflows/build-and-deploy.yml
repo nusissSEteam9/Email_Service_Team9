@@ -43,8 +43,8 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew clean build --no-daemon
 
-      - name: Run tests
-        run: ./gradlew test  # 执行测试
+      - name: Run EmailControllerTest
+        run: ./gradlew test --tests "nus.iss.se.team9.email_service_team9.EmailControllerTest"
 
   # Docker job for building and pushing Docker image 111
   docker-build:
